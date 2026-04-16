@@ -1,18 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import DiscTest from '../views/DiscTest.vue'; // component DISC test Anda
-import HasilPage from '../views/HasilPage.vue'; // halaman hasil baru
+import DiscTest from '../views/DiscTest.vue';
+import HasilPage from '../views/HasilPage.vue';
 
 const routes = [
-  {
-    path: '/',
-    name: 'DiscTest',
-    component: DiscTest
-  },
-  {
-    path: '/hasil',
-    name: 'Hasil',
-    component: HasilPage
-  }
+  { path: '/', name: 'DiscTest', component: DiscTest },
+  { path: '/hasil', name: 'Hasil', component: HasilPage }
 ];
 
 const router = createRouter({
