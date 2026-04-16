@@ -10,6 +10,7 @@
         <!-- Header DISC Test -->
         <div class="disc-header text-center mb-4">
           <div class="badge-wrapper mb-3">
+            <img src="/eaj.png" width="150">
             <span class="question-badge">{{ currentNo }}/24</span>
           </div>
           <h2 class="disc-title mb-2">DISC Personality Test</h2>
