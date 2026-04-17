@@ -13,6 +13,15 @@
             <img src="/eaj.png" width="150">
             <span class="question-badge">{{ currentNo }}/24</span>
           </div>
+          <div class="logout-wrapper text-end mb-3">
+            <button 
+              @click="handleLogout" 
+              class="btn-logout"
+              :disabled="loading"
+            >
+              <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
+          </div>
           <h2 class="disc-title mb-2">DISC Personality Test</h2>
           <p class="disc-subtitle">Tes Kepribadian untuk Mengenal Gaya Perilaku Anda</p>
         </div>
@@ -128,7 +137,7 @@
           
           <div class="button-group mt-5">
             <button 
-              class="btn-primary-custom"
+              class="btn-primary-custom" style="background-color: #7d5fff;"
               @click="nextSoal"
               :disabled="!selectedP || !selectedK || loading"
             >
@@ -187,7 +196,46 @@ const loading = ref(true);
 const showLeaveWarning = ref(false);
 const pendingLeave = ref(null);
 
-// Load progress dari localStorage
+const handleLogout = async () => {
+  const result = await Swal.fire({
+    title: 'Keluar dari Akun?',
+    text: 'Anda akan logout dan progress tes akan dihapus.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Logout',
+    cancelButtonText: 'Batal',
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#6c757d',
+    reverseButtons: true
+  });
+
+  if (result.isConfirmed) {
+    loading.value = true;
+    
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('disc_test_progress'); 
+      
+      await Swal.fire({
+        title: 'Berhasil Logout! 👋',
+        text: 'Sampai jumpa lagi!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      router.push('/login');
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      router.push('/login');
+    } finally {
+      loading.value = false;
+    }
+  }
+};
+
 const loadProgress = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -195,7 +243,6 @@ const loadProgress = () => {
       const data = JSON.parse(saved);
       if (data.currentNo) currentNo.value = data.currentNo;
       if (data.answers) {
-        // Restore answers jika ada
         const currentAnswers = data.answers[data.currentNo];
         if (currentAnswers) {
           selectedP.value = currentAnswers.paling;
@@ -210,7 +257,6 @@ const loadProgress = () => {
   return false;
 };
 
-// Save progress ke localStorage
 const saveProgress = () => {
   try {
     const progress = {
@@ -224,7 +270,6 @@ const saveProgress = () => {
       timestamp: new Date().toISOString()
     };
     
-    // Merge dengan existing data jika ada
     const existing = localStorage.getItem(STORAGE_KEY);
     if (existing) {
       const parsed = JSON.parse(existing);
@@ -237,7 +282,6 @@ const saveProgress = () => {
   }
 };
 
-// Clear progress setelah tes selesai
 const clearProgress = () => {
   localStorage.removeItem(STORAGE_KEY);
 };
@@ -248,7 +292,6 @@ const fetchQuestion = async () => {
     const res = await axios.get(`http://localhost:3000/questions/${currentNo.value}`);
     options.value = res.data;
     
-    // Restore selection jika ada saved answer untuk soal ini
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const data = JSON.parse(saved);
@@ -268,14 +311,12 @@ const fetchQuestion = async () => {
 const selectPaling = (value) => {
   if (selectedK.value === value) return;
   selectedP.value = selectedP.value === value ? null : value;
-  // Auto-save ke localStorage
   saveProgress();
 };
 
 const selectKurang = (value) => {
   if (selectedP.value === value) return;
   selectedK.value = selectedK.value === value ? null : value;
-  // Auto-save ke localStorage
   saveProgress();
 };
 
@@ -297,11 +338,9 @@ const submitAnswer = async () => {
       paling: selectedP.value,
       kurang: selectedK.value
     });
-    // Update progress setelah sukses submit
     saveProgress();
   } catch (error) {
     console.error('Error saving:', error);
-    // Tetap save ke localStorage sebagai backup
     saveProgress();
   }
 };
@@ -327,7 +366,6 @@ const nextSoal = async () => {
     await fetchQuestion();
     scrollToNomorSoal();
   } else {
-    // 👇 Tes selesai - tampilkan Swal lalu redirect
     clearProgress();
     
     await Swal.fire({
@@ -342,13 +380,12 @@ const nextSoal = async () => {
       timerProgressBar: true
     });
     
-    router.push('/hasil'); // 👈 Redirect setelah Swal
+    router.push('/hasil'); 
   }
 };
 
 const prevSoal = async () => {
   if (currentNo.value > 1) {
-    // Save current state sebelum pindah
     saveProgress();
     currentNo.value--;
     fetchQuestion();
@@ -356,17 +393,14 @@ const prevSoal = async () => {
   }
 };
 
-// Prevent page refresh / close dengan warning
 const handleBeforeUnload = (event) => {
-  // Cek apakah tes belum selesai
   if (currentNo.value < 24) {
     event.preventDefault();
-    event.returnValue = ''; // Required untuk Chrome
+    event.returnValue = ''; 
     return '';
   }
 };
 
-// Handle browser back button
 const handlePopState = () => {
   if (currentNo.value > 1) {
     showLeaveWarning.value = true;
@@ -377,7 +411,6 @@ const handlePopState = () => {
 const cancelLeave = () => {
   showLeaveWarning.value = false;
   pendingLeave.value = null;
-  // Push state kembali agar back button tidak berfungsi
   if (pendingLeave.value === 'back') {
     history.pushState({}, '', location.href);
   }
@@ -391,24 +424,18 @@ const confirmLeave = () => {
   pendingLeave.value = null;
 };
 
-// Lifecycle hooks
 onMounted(async () => {
-  // Load saved progress
   loadProgress();
   
-  // Fetch question
   await fetchQuestion();
   
-  // Register event listeners
   window.addEventListener('beforeunload', handleBeforeUnload);
   window.addEventListener('popstate', handlePopState);
   
-  // Push state untuk handle back button
   history.pushState({}, '', location.href);
 });
 
 onUnmounted(() => {
-  // Cleanup event listeners
   window.removeEventListener('beforeunload', handleBeforeUnload);
   window.removeEventListener('popstate', handlePopState);
 });
@@ -1003,5 +1030,40 @@ onUnmounted(() => {
   .btn-primary-custom {
     width: 100%;
   }
+}
+
+/* Logout Button */
+.logout-wrapper {
+  margin-top: -0.5rem;
+}
+
+.btn-logout {
+  background: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-logout:hover:not(:disabled) {
+  background: #dc3545;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-logout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-logout i {
+  font-size: 1rem;
 }
 </style>

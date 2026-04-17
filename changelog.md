@@ -1,4 +1,8 @@
 # Changelog
+## v0.2.2 (17-04-2026)
+- membuat middleware
+- function logout
+
 ## v0.2.1 (17-04-2026)
 - alert diganti dengan swal2 notif
 
