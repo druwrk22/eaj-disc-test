@@ -6,7 +6,7 @@ const token = ref(localStorage.getItem('token') || null);
 
 export default function useAuth() {
     const login = async (credentials) => {
-        const res = await axios.post('http://localhost:3000/api/auth/login', credentials);
+        const res = await axios.post('/api/auth/login', credentials);
         token.value = res.data.token;
         user.value = res.data.user;
         localStorage.setItem('token', res.data.token);

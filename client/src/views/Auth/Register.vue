@@ -27,7 +27,6 @@
                         type="text" 
                         class="form-control bg-light border-start-0 ps-0" 
                         placeholder="John Doe"
-                        required
                       >
                     </div>
                   </div>
@@ -43,7 +42,6 @@
                         type="email" 
                         class="form-control bg-light border-start-0 ps-0" 
                         placeholder="name@example.com"
-                        required
                       >
                     </div>
                   </div>
@@ -59,7 +57,6 @@
                         type="password" 
                         class="form-control bg-light border-start-0 ps-0" 
                         placeholder="••••••••"
-                        required
                       >
                     </div>
                   </div>
@@ -95,12 +92,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'; // 
-import axios from 'axios'; // [cite: 105, 209]
+import { ref } from 'vue'; 
+import axios from 'axios'; 
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
-const loading = ref(false); // [cite: 213]
+const loading = ref(false); 
 const form = ref({
   name: '',
   email: '',
@@ -108,15 +106,75 @@ const form = ref({
 });
 
 const handleRegister = async () => {
+  if (!form.value.name || !form.value.email || !form.value.password) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Data Tidak Lengkap',
+      text: 'Semua field wajib diisi!',
+      confirmButtonColor: '#198754'
+    });
+    return;
+  }
+
   loading.value = true;
+
+  Swal.fire({
+    title: 'Mendaftar...',
+    text: 'Mohon tunggu sebentar',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
   try {
     await axios.post('/api/auth/register', form.value);
-    alert('Registrasi Berhasil! Silakan Login.');
+    
+    await Swal.fire({
+      icon: 'success',
+      title: 'Registrasi Berhasil! 🎉',
+      text: 'Silakan login dengan akun Anda.',
+      confirmButtonColor: '#198754',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
     router.push('/login');
   } catch (err) {
-    alert(err.response?.data?.message || 'Gagal melakukan registrasi');
-  } finally {
+    const statusCode = err.response?.status;
+    const message = err.response?.data?.message || 'Gagal melakukan registrasi';
+    const errors = err.response?.data?.errors; 
+    
     loading.value = false;
+
+    if (message.toLowerCase().includes('email') && message.toLowerCase().includes('terdaftar')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Email Sudah Digunakan',
+        text: 'Email ini sudah terdaftar. Silakan login atau gunakan email lain.',
+        confirmButtonColor: '#dc3545',
+        footer: '<a href="/login" class="small">Sudah punya akun? Login di sini</a>'
+      });
+    } 
+    else if (statusCode === 400 && Array.isArray(errors) && errors.length > 0) {
+      const errorList = errors.map(e => `• ${e.message}`).join('\n');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validasi Gagal',
+        text: errorList,
+        confirmButtonColor: '#ffc107',
+        footer: 'Periksa kembali input Anda'
+      });
+    } 
+    else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Registrasi Gagal',
+        text: message,
+        confirmButtonColor: '#dc3545'
+      });
+    }
+  } finally {
+    if (Swal.isLoading()) {
+      Swal.close();
+    }
   }
 };
 </script>
