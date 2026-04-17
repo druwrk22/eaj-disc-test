@@ -453,7 +453,7 @@ onUnmounted(() => {
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 2.5rem;
-  /* box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
   animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }

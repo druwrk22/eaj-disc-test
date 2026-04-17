@@ -2,6 +2,7 @@ const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
 const cors = require('cors');
 const sequelize = require('./config/database');
+const authRoutes = require('./routes/authRoutes');
 const discRoutes = require('./routes/discRoutes');
 const app = express();
 
@@ -9,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/', discRoutes);
+app.use('/auth', authRoutes);
 
 sequelize.sync()
     .then(() => {
