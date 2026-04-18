@@ -154,11 +154,20 @@ export function useDiscTest() {
     if (!selectedP.value || !selectedK.value) return;
     
     try {
+      const userData = localStorage.getItem('user');
+        const user = userData ? JSON.parse(userData) : null;
+        if (!user || !user.id) {
+            alert('User tidak terautentikasi. Silakan login ulang.');
+            return;
+        }
+
       await axios.post('http://localhost:3000/submit-answer', {
         nomor: currentNo.value,
         paling: selectedP.value,
-        kurang: selectedK.value
+        kurang: selectedK.value,
+        user_id: user.id
       });
+
       saveProgress();
     } catch (error) {
       console.error('Error saving:', error);
