@@ -1,4 +1,9 @@
 # Changelog
+## v0.2.5 (19-04-2026)
+- adding calculate DISC
+- update page hasil
+- export to pdf
+
 ## v0.2.4 (18-04-2026)
 - adding user_id di tb user_responses
 - create migrations user_id

@@ -36,3 +36,22 @@ exports.submitAnswer = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.getResultsById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const responses = await UserResponse.findAll({ where: { user_id: userId } });
+    res.json(responses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getMasterQuestions = async(req, res) => {
+    try {
+        const masters = await DiscMaster.findAll();
+        res.json(masters);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
