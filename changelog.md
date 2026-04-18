@@ -1,4 +1,7 @@
 # Changelog
+## v0.2.3 (18-04-2026)
+- bebenah code Vue (pemisahan js dan css) all page
+
 ## v0.2.2 (17-04-2026)
 - membuat middleware
 - function logout
