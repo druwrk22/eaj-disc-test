@@ -6,6 +6,7 @@ import LoginPage from '../views/Auth/Login.vue';
 import RegisterPage from '../views/Auth/Register.vue';
 import MasterPage from '../views/Master/Home.vue';
 import ManageUserPage from '../views/Master/ManageUser.vue';
+import ManageQuestionPage from '../views/Master/ManageQuestion.vue';
 import { requireAuth, requireGuest } from './guards';
 
 const routes = [
@@ -53,6 +54,12 @@ const routes = [
     path: '/master/manage-user', 
     name: 'Manage User', 
     component: ManageUserPage,
+    beforeEnter: requireAuth
+  },
+  { 
+    path: '/master/manage-question', 
+    name: 'Manage Question', 
+    component: ManageQuestionPage,
     beforeEnter: requireAuth
   }
 ];

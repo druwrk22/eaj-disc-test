@@ -8,9 +8,12 @@
           <div class="main-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
               <div>
-                <h2 class="disc-title mb-1">Manage Users</h2>
-                <p class="text-muted">Kelola data users.</p>
+                <h2 class="disc-title mb-1">Manage Questions</h2>
+                <p class="text-muted">Kelola data pertanyaan DISC</p>
               </div>
+              <button class="btn-add" @click="openModal('add')">
+                <i class="bi bi-plus-lg me-2"></i> Tambah Pertanyaan
+              </button>
             </div>
 
             <div id="gridjs-wrapper"></div>
@@ -19,23 +22,33 @@
       </main>
     </div>
 
-    <div v-if="showEditModal" class="modal-overlay">
+    <div v-if="showModal" class="modal-overlay">
       <div class="modal-content-custom">
-        <h3>Edit User</h3>
+        <h3>{{ isEditMode ? 'Edit Pertanyaan' : 'Tambah Pertanyaan' }}</h3>
+        <hr>
         <div class="form-group mb-3">
-          <label>Nama Lengkap</label>
-          <input type="text" v-model="selectedUser.name" class="form-control">
+          <label class="form-label">Nomor</label>
+          <input type="number" v-model="formData.nomor" class="form-control" placeholder="Contoh: 1">
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label">Pilihan Teks</label>
+          <textarea v-model="formData.pilihan_teks" class="form-control" rows="2" placeholder="Masukkan teks pertanyaan"></textarea>
         </div>
         <div class="form-group mb-4">
-          <label>Role</label>
-          <select v-model="selectedUser.role" class="form-select">
-            <option value="master">Master</option>
-            <option value="user">User</option>
+          <label class="form-label">Kategori (D/I/S/C)</label>
+          <select v-model="formData.kategori" class="form-select">
+            <option value="" disabled>Pilih Kategori</option>
+            <option value="D">D (Dominance)</option>
+            <option value="I">I (Influence)</option>
+            <option value="S">S (Steadiness)</option>
+            <option value="C">C (Compliance)</option>
           </select>
         </div>
         <div class="d-flex justify-content-end gap-2">
-          <button class="btn btn-light" @click="showEditModal = false">Batal</button>
-          <button class="btn btn-primary-custom" @click="saveUser">Simpan Perubahan</button>
+          <button class="btn btn-light" @click="showModal = false">Batal</button>
+          <button class="btn btn-primary-custom" @click="handleSubmit">
+            {{ isEditMode ? 'Simpan Perubahan' : 'Simpan Data' }}
+          </button>
         </div>
       </div>
     </div>
@@ -43,41 +56,52 @@
 </template>
 
 <script setup>
-import { ref, onMounted, h, render } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Grid, html } from "gridjs";
+import "gridjs/dist/theme/mermaid.css";
 import Swal from 'sweetalert2';
-import axios from 'axios'; 
+import axios from 'axios';
 import Navbar from '../../components/Navbar.vue';
 import Sidebar from '../../components/Sidebar.vue';
 
-const showEditModal = ref(false);
-const selectedUser = ref({});
+const showModal = ref(false);
+const isEditMode = ref(false);
+const originalKey = ref(''); 
+const formData = ref({
+  nomor: '',
+  pilihan_teks: '',
+  kategori: ''
+});
+
 let gridInstance = null;
 
 const initGrid = () => {
+  const wrapper = document.getElementById("gridjs-wrapper");
+  if (wrapper) wrapper.innerHTML = ""; 
+
   gridInstance = new Grid({
     columns: [
-      { name: "Name", width: '25%' },
-      { name: "Email", width: '30%' },
-      { 
-        name: "Role", 
-        width: '20%',
-        formatter: (cell) => html(`<span class="badge-role ${cell.toLowerCase()}">${cell}</span>`)
-      },
+      { name: "Nomor", width: '10%' },
+      { name: "Pilihan", width: '50%' },
+      { name: "Kategori", width: '15%' },
       { 
         name: "Action",
         width: '25%',
-        sort: false,
         formatter: (cell, row) => {
-          const userData = btoa(row.cells[3].data); 
+          const rawData = JSON.stringify({
+            nomor: row.cells[0].data,
+            pilihan_teks: row.cells[1].data,
+            kategori: row.cells[2].data
+          });
+          const encoded = btoa(unescape(encodeURIComponent(rawData)));
           
           return html(`
             <div class="btn-group-action d-flex justify-content-center">
-              <button class="btn-icon edit" onclick="window.triggerEdit('${userData}')">
+              <button class="btn-icon edit" onclick="window.triggerEdit('${encoded}')">
                 <i class="bi bi-pencil-square"></i>
               </button>
-              <button class="btn-icon reset" onclick="window.triggerReset('${userData}')">
-                <i class="bi bi-shield-lock"></i>
+              <button class="btn-icon reset" onclick="window.triggerDelete('${encoded}')">
+                <i class="bi bi-trash"></i>
               </button>
             </div>
           `);
@@ -85,90 +109,75 @@ const initGrid = () => {
       }
     ],
     server: {
-      url: '/api/master/manage-user',
-      then: data => data.map(user => [
-        user.name, 
-        user.email, 
-        user.role, 
-        JSON.stringify(user)
-      ]),
+      url: '/api/master/manage-question', // Ganti dengan URL getQuestions Anda
+      then: data => data.map(q => [q.nomor, q.pilihan_teks, q.kategori]),
     },
-  }).render(document.getElementById("gridjs-wrapper"));
+    pagination: { limit: 10 },
+    search: true,
+    sort: true,
+  }).render(wrapper);
+};
+
+const openModal = (mode, data = null) => {
+  if (mode === 'edit') {
+    isEditMode.value = true;
+    formData.value = { ...data };
+    originalKey.value = data.pilihan_teks;
+  } else {
+    isEditMode.value = false;
+    formData.value = { nomor: '', pilihan_teks: '', kategori: '' };
+  }
+  showModal.value = true;
+};
+
+const handleSubmit = async () => {
+  try {
+    if (isEditMode.value) {
+      await axios.put('/api/master/manage-question', {
+        ...formData.value,
+        original_pilihan_teks: originalKey.value
+      });
+      Swal.fire('Berhasil', 'Data diperbarui', 'success');
+    } else {
+      await axios.post('/api/master/manage-question', formData.value);
+      Swal.fire('Berhasil', 'Data ditambahkan', 'success');
+    }
+    showModal.value = false;
+    gridInstance.forceRender(); 
+  } catch (error) {
+    Swal.fire('Error', error.response?.data?.error || 'Terjadi kesalahan', 'error');
+  }
 };
 
 window.triggerEdit = (encodedData) => {
-  const userObj = JSON.parse(atob(encodedData)); 
-  selectedUser.value = userObj;
-  showEditModal.value = true;
+  const obj = JSON.parse(decodeURIComponent(escape(atob(encodedData))));
+  openModal('edit', obj);
 };
 
-window.triggerReset = (encodedData) => {
-  const userObj = JSON.parse(atob(encodedData)); 
-  resetPassword(userObj);
-};
-
-const saveUser = async () => {
-    if (!selectedUser.value.id) return;
-
-    try {
-        Swal.showLoading();
-
-        await axios.put(`/api/master/update-user/${selectedUser.value.id}`, {
-            name: selectedUser.value.name,
-            role: selectedUser.value.role
-        });
-
-        await Swal.fire({
-            title: 'Berhasil!',
-            text: 'Data user telah diperbarui.',
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false
-        });
-
-        showEditModal.value = false;
-        gridInstance.forceRender(); 
-    } catch (e) {
-        console.error(e);
-        Swal.fire('Error', 'Gagal memperbarui data user.', 'error');
-    }
-};
-
-const resetPassword = async (user) => {
-    const result = await Swal.fire({
-        title: 'Reset Password?',
-        text: `Password untuk ${user.name} akan dikembalikan menjadi: 12345678`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#7d5fff',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Reset Sekarang!',
-        cancelButtonText: 'Batal',
-        reverseButtons: true
-    });
-
+window.triggerDelete = (encodedData) => {
+  const obj = JSON.parse(decodeURIComponent(escape(atob(encodedData))));
+  
+  Swal.fire({
+    title: 'Hapus data?',
+    text: `Anda akan menghapus: "${obj.pilihan_teks}"`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e11d48',
+    confirmButtonText: 'Ya, Hapus!'
+  }).then(async (result) => {
     if (result.isConfirmed) {
-        try {
-            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-            await axios.post(`/api/master/reset-password/${user.id}`);
-
-            await Swal.fire({
-                title: 'Password Ter-reset!',
-                text: 'Password berhasil dikembalikan ke default (12345678).',
-                icon: 'success'
-            });
-            
-        } catch (e) {
-            console.error(e);
-            Swal.fire('Gagal!', 'Terjadi kesalahan saat mereset password.', 'error');
-        }
+      try {
+        await axios.delete(`/api/master/manage-question/${encodeURIComponent(obj.pilihan_teks)}`);
+        Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
+        gridInstance.forceRender();
+      } catch (error) {
+        Swal.fire('Gagal', 'Gagal menghapus data', 'error');
+      }
     }
+  });
 };
 
-onMounted(() => {
-  initGrid();
-});
+onMounted(initGrid);
 </script>
 
 <style scoped>

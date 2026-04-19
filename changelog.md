@@ -1,4 +1,8 @@
 # Changelog
+## v1.0.0 (20-04-2026)
+- creating manage question
+- finish all feature
+ 
 ## v0.2.8 (20-04-2026)
 - creating manage user
 - fix bug navbar

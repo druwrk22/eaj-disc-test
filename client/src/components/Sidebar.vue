@@ -13,6 +13,12 @@
             <i class="bi bi-people"></i> Manage User
           </li>
         </router-link>
+        
+        <router-link to="/master/manage-question" custom v-slot="{ navigate, isActive }">
+          <li class="nav-item" :class="{ active: isActive }" @click="navigate">
+            <i class="bi bi-book"></i> Manage Question
+          </li>
+        </router-link>
       </ul>
     </div>
   </aside>
