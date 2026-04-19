@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DiscTest from '../views/DiscTest.vue';
+import ChangePassword from '../views/ChangePassword.vue';
 import HasilPage from '../views/HasilPage.vue';
 import LoginPage from '../views/Auth/Login.vue';
 import RegisterPage from '../views/Auth/Register.vue';
@@ -14,6 +15,12 @@ const routes = [
     path: '/user', 
     name: 'DiscTest', 
     component: DiscTest,
+    beforeEnter: requireAuth
+  },
+  { 
+    path: '/user/change-password', 
+    name: 'ChangePassword', 
+    component: ChangePassword,
     beforeEnter: requireAuth
   },
   { 

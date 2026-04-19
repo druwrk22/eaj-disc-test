@@ -1,4 +1,8 @@
 # Changelog
+## v0.2.6 (20-04-2026)
+- adding modal reset email/pass
+- Change password users
+
 ## v0.2.5 (19-04-2026)
 - adding calculate DISC
 - update page hasil

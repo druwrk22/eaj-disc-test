@@ -1,19 +1,22 @@
 <template>
-  <!-- Wrapper dengan Background Image -->
   <div class="disc-test-wrapper">
-    <!-- Overlay Gradient -->
     <div class="background-overlay"></div>
     
-    <!-- Main Content -->
     <div class="container">
       <div class="main-card">
-        <!-- Header DISC Test -->
         <div class="disc-header text-center mb-4">
           <div class="badge-wrapper mb-3">
             <img src="/eaj.png" width="150">
             <span class="question-badge">{{ currentNo }}/24</span>
           </div>
           <div class="logout-wrapper text-end mb-3">
+            <router-link 
+              to="/user/change-password" 
+              class="btn-chapwd text-decoration-none d-inline-block"
+              :class="{ 'pe-none opacity-50': loading }"
+            >
+              <i class="bi bi-lock me-1"></i> Change Password
+            </router-link>&nbsp;
             <button 
               @click="handleLogout" 
               class="btn-logout"
@@ -26,7 +29,6 @@
           <p class="disc-subtitle">Tes Kepribadian untuk Mengenal Gaya Perilaku Anda</p>
         </div>
 
-        <!-- Info Box dengan Petunjuk Lengkap -->
         <div class="info-section mb-4">
           <div class="info-card">
             <div class="info-content">
@@ -59,7 +61,6 @@
           </div>
         </div><br>
 
-        <!-- Loading State -->
         <p class="question-badge2" id="nomorSoal">SOAL NO. {{ currentNo }}</p><br><br>
 
         <div v-if="loading" class="text-center py-5">
@@ -69,7 +70,6 @@
           <p class="mt-2 text-muted">Memuat soal...</p>
         </div>
 
-        <!-- Options Container -->
         <div v-else class="options-container" style="background-color: lightblue;">
           <div class="options-list">
             <div 
@@ -87,7 +87,6 @@
                 <h4>{{ opt.pilihan_teks }}</h4>
               </div>
               
-              <!-- Selection Options - Sejajar -->
               <div class="selection-group">
                 <label 
                   class="selection-option paling"
@@ -125,7 +124,6 @@
           </div>
         </div>
 
-        <!-- Navigation -->
         <div class="navigation-buttons mt-5">
           <button 
             class="btn-secondary-custom"

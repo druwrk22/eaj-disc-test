@@ -593,6 +593,36 @@
   margin-top: -0.5rem;
 }
 
+.btn-chapwd {
+  background: transparent;
+  color: green;
+  border: 2px solid green;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-chapwd:hover:not(:disabled) {
+  background: green;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-chapwd:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-chapwd i {
+  font-size: 1rem;
+}
+
 .btn-logout {
   background: transparent;
   color: #dc3545;
