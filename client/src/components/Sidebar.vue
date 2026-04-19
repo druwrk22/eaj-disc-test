@@ -2,8 +2,18 @@
   <aside class="sidebar-custom">
     <div class="sidebar-content">
       <ul class="nav-menu">
-        <li class="nav-item active"><i class="bi bi-house-door"></i> Home</li>
-        </ul>
+        <router-link to="/master" custom v-slot="{ navigate, isActive }">
+          <li class="nav-item" :class="{ active: isActive }" @click="navigate">
+            <i class="bi bi-house-door"></i> Home
+          </li>
+        </router-link>
+
+        <router-link to="/master/manage-user" custom v-slot="{ navigate, isActive }">
+          <li class="nav-item" :class="{ active: isActive }" @click="navigate">
+            <i class="bi bi-people"></i> Manage User
+          </li>
+        </router-link>
+      </ul>
     </div>
   </aside>
 </template>

@@ -1,4 +1,10 @@
 # Changelog
+## v0.2.8 (20-04-2026)
+- creating manage user
+- fix bug navbar
+- create logic reset password
+- create logic edit account
+
 ## v0.2.7 (20-04-2026)
 - adding layout master role
 - partials navbar, sidebar

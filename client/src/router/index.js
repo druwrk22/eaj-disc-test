@@ -5,6 +5,7 @@ import HasilPage from '../views/HasilPage.vue';
 import LoginPage from '../views/Auth/Login.vue';
 import RegisterPage from '../views/Auth/Register.vue';
 import MasterPage from '../views/Master/Home.vue';
+import ManageUserPage from '../views/Master/ManageUser.vue';
 import { requireAuth, requireGuest } from './guards';
 
 const routes = [
@@ -46,6 +47,12 @@ const routes = [
     path: '/master', 
     name: 'Master', 
     component: MasterPage,
+    beforeEnter: requireAuth
+  },
+  { 
+    path: '/master/manage-user', 
+    name: 'Manage User', 
+    component: ManageUserPage,
     beforeEnter: requireAuth
   }
 ];
