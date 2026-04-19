@@ -4,12 +4,25 @@ import ChangePassword from '../views/ChangePassword.vue';
 import HasilPage from '../views/HasilPage.vue';
 import LoginPage from '../views/Auth/Login.vue';
 import RegisterPage from '../views/Auth/Register.vue';
+import MasterPage from '../views/Master/Home.vue';
 import { requireAuth, requireGuest } from './guards';
 
 const routes = [
   {
     path: '/',
     redirect: '/login'
+  },
+  { 
+    path: '/login', 
+    name: 'Login', 
+    component: LoginPage,
+    beforeEnter: requireGuest
+  },
+  { 
+    path: '/register', 
+    name: 'Register', 
+    component: RegisterPage,
+    beforeEnter: requireGuest
   },
   { 
     path: '/user', 
@@ -30,16 +43,10 @@ const routes = [
     beforeEnter: requireAuth
   },
   { 
-    path: '/login', 
-    name: 'Login', 
-    component: LoginPage,
-    beforeEnter: requireGuest
-  },
-  { 
-    path: '/register', 
-    name: 'Register', 
-    component: RegisterPage,
-    beforeEnter: requireGuest
+    path: '/master', 
+    name: 'Master', 
+    component: MasterPage,
+    beforeEnter: requireAuth
   }
 ];
 

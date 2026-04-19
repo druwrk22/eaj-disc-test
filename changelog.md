@@ -1,4 +1,8 @@
 # Changelog
+## v0.2.7 (20-04-2026)
+- adding layout master role
+- partials navbar, sidebar
+
 ## v0.2.6 (20-04-2026)
 - adding modal reset email/pass
 - Change password users

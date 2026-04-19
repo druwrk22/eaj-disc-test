@@ -42,8 +42,8 @@ export function useLogin() {
             });
 
             const userRole = res.data.user.role;
-            if (userRole === 'admin') {
-            router.push('/admin');
+            if (userRole === 'master') {
+            router.push('/master');
             } else if (userRole === 'hrd') {
             router.push('/hrd');
             } else {
